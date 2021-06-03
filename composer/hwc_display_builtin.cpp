@@ -395,27 +395,6 @@ void HWCDisplayBuiltIn::SetBwLimitHint(bool enable) {
     return;
   }
 
-  if (!enable) {
-    thermal_bandwidth_client_cancel_request(const_cast<char*>(kDisplayBwName));
-    curr_refresh_rate_ = 0;
-    return;
-  }
-
-  uint32_t config_index = 0;
-  DisplayConfigVariableInfo attr = {};
-  GetActiveDisplayConfig(&config_index);
-  GetDisplayAttributesForConfig(INT(config_index), &attr);
-  if (attr.fps != curr_refresh_rate_ || attr.smart_panel != is_smart_panel_) {
-    int bw_code = GetBwCode(attr);
-    int req_data = thermal_bandwidth_client_merge_input_info(bw_code, 0);
-    int error = thermal_bandwidth_client_request(const_cast<char*>(kDisplayBwName), req_data);
-    if (error) {
-      DLOGE("Thermal bandwidth request failed %d", error);
-    }
-    curr_refresh_rate_ = attr.fps;
-    is_smart_panel_ = attr.smart_panel;
-  }
-}
 
 void HWCDisplayBuiltIn::SetPartialUpdate(DisplayConfigFixedInfo fixed_info) {
   partial_update_enabled_ = fixed_info.partial_update || (!fixed_info.is_cmdmode);
